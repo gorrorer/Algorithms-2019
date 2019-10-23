@@ -122,7 +122,10 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * но приветствуется попытка решить её самостоятельно.
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-TODO()
+    var output = 0
+    for (i in 1..menNumber)
+        output = (output + choiceInterval) % i
+    return output + 1
 }
 
 /**
@@ -151,7 +154,17 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    var output = 0
+    for (i in 2..limit)
+        if (check(i)) output++
+    return output
+}
+
+fun check(num: Int): Boolean{
+    var d = 2
+    while (d * d <= num && num % d != 0)
+        d++
+    return d * d > num
 }
 
 /**

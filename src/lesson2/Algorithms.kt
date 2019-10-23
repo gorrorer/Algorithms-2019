@@ -2,6 +2,10 @@
 
 package lesson2
 
+import java.io.File
+import java.lang.IllegalArgumentException
+
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -26,9 +30,47 @@ package lesson2
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
+
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
-    TODO()
+    var output = Pair(0, 0)
+    val input = File(inputName).readLines()
+        .map {
+            if (Regex("""\d+""").matches(it))
+                it.toInt()
+            else throw IllegalArgumentException()
+        }
+    var min = Pair(0, input[0])
+    var dif = 0
+    for (i in 0 until input.size) {
+        if (input[i] < min.second)
+            min = Pair(i, input[i])
+        if (input[i] - input[min.first] > dif) {
+            dif = input[i] - input[min.first]
+            output = Pair(min.first + 1, i + 1)
+        }
+    }
+    return output
 }
+
+/*
+fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
+    val input = File(inputName).readLines().map { it.toInt() }
+    val lastIndex =  input.size - 1
+    var min = Pair(0, input[0])
+    var max = Pair(lastIndex, 0)
+    var st = 0
+    var en = lastIndex
+    while (st != lastIndex && en != 0) {
+        if (input[st] < min.second && st < en)
+            min = Pair(st, input[st])
+        if (input[en] > max.second && en > st)
+            max = Pair(en, input[en])
+        st++
+        en--
+    }
+    return Pair(min.first, max.first)
+}
+ */
 
 /**
  * Задача Иосифа Флафия.
@@ -80,7 +122,7 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * но приветствуется попытка решить её самостоятельно.
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-    TODO()
+
 }
 
 /**

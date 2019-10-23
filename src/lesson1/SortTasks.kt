@@ -1,6 +1,10 @@
-@file:Suppress("UNUSED_PARAMETER")
+@file:Suppress("UNUSED_PARAMETER", "unused")
 
 package lesson1
+
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Сортировка времён
@@ -33,8 +37,21 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    val input = File(inputName).readLines()
+    val output = File(outputName)
+    val sortedListOfTimes = mutableListOf<Date>()
+    val timeFormat = SimpleDateFormat("hh:mm:ss a")
+    for (str in input) {
+        if (Regex("""([0-9]{2}):([0-9]{2}):([0-9]{2})\s[AP]M""").matches(str))
+            sortedListOfTimes.add(timeFormat.parse(str))
+        else throw IllegalArgumentException()
+    }
+    sortedListOfTimes.sort()
+    output.writeText(sortedListOfTimes.joinToString("\n") { date -> timeFormat.format(date) })
 }
+
+//Трудоёмкость O(n * n)
+//Ресурсоёмкость O(n)
 
 /**
  * Сортировка адресов
@@ -97,8 +114,29 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    val output = File(outputName).bufferedWriter()
+    val counter = IntArray(7731)
+    val tMin = 2730.0
+    var tDb: Double
+    var tInt: Int
+    for (str in File(inputName).readLines()) {
+        if (str.toDouble() in -273.0..500.0)
+            tDb = str.toDouble()
+        else throw IllegalArgumentException()
+        tInt = (tDb * 10 + tMin).toInt()
+        counter[tInt]++
+    }
+    for (i in 0..7730) {
+        val tFin = (i - tMin) / 10.0
+        if (counter[i] > 0)
+            for (j in 1..counter[i])
+                output.write("$tFin\n")
+    }
+    output.close()
 }
+
+//Трудоёмкость O(n)
+//Ресурсоёмкость O(n)
 
 /**
  * Сортировка последовательности
@@ -147,7 +185,16 @@ fun sortSequence(inputName: String, outputName: String) {
  *
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
+
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
-    TODO()
+    var li = 0
+    var ri = first.size
+    for (i in 0 until second.size) {
+        if (li < first.size && (ri == second.size || first[li] <= second[ri]!!)) {
+            second[i] = first[li++]
+        } else {
+            second[i] = second[ri++]
+        }
+    }
 }
 

@@ -120,7 +120,7 @@ fun sortTemperatures(inputName: String, outputName: String) {
     var tDb: Double
     var tInt: Int
     for (str in File(inputName).readLines()) {
-        if (str.toDouble() in -273.0..500.0)
+        if (Regex("""-?\d+[.]\d""").matches(str) && str.toDouble() in -273.0..500.0)
             tDb = str.toDouble()
         else throw IllegalArgumentException()
         tInt = (tDb * 10 + tMin).toInt()

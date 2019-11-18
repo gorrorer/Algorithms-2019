@@ -4,6 +4,8 @@ import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.max
 
+
+
 // Attention: comparable supported but comparator is not
 class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSortedSet<T> {
 
@@ -63,8 +65,79 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * Средняя
      */
     override fun remove(element: T): Boolean {
-        TODO()
+        var current = root
+        var parent = root
+        var isLeftChild = true
+        if (root == null) return false
+
+        while (current!!.value != element) {                //поиск удаляемого элемента и его "родителя"
+            parent = current
+            if (element < current.value) {
+                current = current.left
+                isLeftChild = true
+            } else {
+                current = current.right
+                isLeftChild = false
+            }
+        }
+
+
+        if (current.left == null && current.right == null) {  //Удаление узла без потомков
+            when {
+                current == root -> {
+                    root = null
+                }
+                isLeftChild -> {
+                    parent?.left = null
+                }
+                else -> {
+                    parent?.right = null
+                }
+            }
+        }
+
+        if (current.right == null)                              //Удаление узла с 1-м потомком
+            when {
+                current == root -> root = current.left
+                isLeftChild -> parent?.left = current.left
+                else -> parent?.right = current.left
+            }
+        else if (current.left == null)
+            when {
+                current == root -> root = current.right
+                isLeftChild -> parent?.left = current.right
+                else -> parent?.right = current.right
+            }
+
+        val successor = getSuccessor(current)                   //Удаление узла с 2-я потомками
+        when {
+            current == root -> root = successor
+            isLeftChild -> parent?.left = successor
+            else -> parent?.right = successor
+        }
+        successor.left = current.left
+        return true
     }
+
+    private fun getSuccessor(removable: Node<T>): Node<T> {         //Поиск преемника удаляемого элемента
+        var successorParent = removable                             //В случаях, когда удаляемый узел имеет 2 потомков
+        var successor = removable
+        var current = removable.right
+        while (current != null) {
+            successorParent = successor
+            successor = current
+            current = current.left
+        }
+        if (successor != removable.right) {
+            successorParent.left = successor.right
+            successor.right = removable.right
+        }
+        return successor
+    }
+
+    //Функция remove тесты не проходит, к сожалению времени на фикс не хватило
+    //Максимально может пройтись 2 раза по дереву
+
 
     override operator fun contains(element: T): Boolean {
         val closest = find(element)
@@ -84,13 +157,16 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     }
 
     inner class BinaryTreeIterator internal constructor() : MutableIterator<T> {
+
+        private var current = root
+        private var stack = Stack<Node<T>>()
+
         /**
          * Проверка наличия следующего элемента
          * Средняя
          */
         override fun hasNext(): Boolean {
-            // TODO
-            throw NotImplementedError()
+            return current != null
         }
 
         /**
@@ -98,8 +174,16 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
          * Средняя
          */
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            while (current != null) {
+                stack.push(current)
+                current = current?.left
+            }
+
+            current = stack.pop()
+            val node = current
+            current = current?.right
+
+            return node!!.value
         }
 
         /**

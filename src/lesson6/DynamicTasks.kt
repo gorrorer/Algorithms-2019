@@ -2,6 +2,8 @@
 
 package lesson6
 
+import java.io.File
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -55,7 +57,18 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    val matrix = File(inputName).readLines().map { it -> it.split(" ").map { it.toInt() }.toMutableList() }
+    for (i in 0 until matrix.size)
+        for (k in 0 until matrix.first().size) {
+            val prevPoints = when {
+                i == 0 && k == 0 -> mutableListOf(matrix[i][k])
+                i > 0 && k == 0 -> mutableListOf(matrix[i - 1][k])
+                i == 0 && k > 0 -> mutableListOf(matrix[i][k - 1])
+                else -> mutableListOf(matrix[i][k - 1], matrix[i - 1][k], matrix[i - 1][k - 1])
+            }
+            matrix[i][k] += prevPoints.min()!!
+        }
+    return matrix[matrix.size - 1][matrix.first().size - 1]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"

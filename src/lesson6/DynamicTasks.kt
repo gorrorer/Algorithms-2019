@@ -3,6 +3,8 @@
 package lesson6
 
 import java.io.File
+import java.util.*
+import kotlin.math.max
 
 /**
  * Наибольшая общая подпоследовательность.
@@ -17,32 +19,45 @@ import java.io.File
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
+    if (first.isEmpty() || second.isEmpty()) return ""
+    val fLen = first.length
+    val sLen = second.length
+    val matrix = Array(fLen + 1) { IntArray(sLen + 1) }
+    var output = ""
 
-    val long: List<Char>
-    val short: List<Char>
-    val letters = mutableMapOf<Pair<Int, Int>, Char>()
-    var inc = Pair(-1, -1)
-    var outputSeq = ""
-
-    if (first.length > second.length) {
-        long = first.toList()
-        short = second.toList()
-    } else {
-        long = second.toList()
-        short = first.toList()
-    }
-    for (i in 0 until long.size)
-        for (k in 0 until short.size) {
-            if (long[i] == short[k]) letters[Pair(i, k)] = long[i]
-        }
-
-    for (i in letters.keys) {
-        if (i.first > inc.first && i.second > inc.second) {
-            outputSeq += letters[i].toString()
-            inc = Pair(i.first, i.second)
+    for (i in 0..fLen) {
+        for (j in 0..sLen) {
+            if (i == 0 || j == 0)
+                matrix[i][j] = 0
+            else if (first[i - 1] == second[j - 1])
+                matrix[i][j] = matrix[i - 1][j - 1] + 1
+            else
+                matrix[i][j] = maxOf(matrix[i - 1][j], matrix[i][j - 1])
         }
     }
-    return outputSeq
+
+
+    var index = matrix[fLen][sLen]
+    val lcs = ArrayDeque<Char>()
+    var i = fLen
+    var j = sLen
+    while (i > 0 && j > 0) {
+        when {
+            first[i - 1] == second[j - 1] -> {
+                lcs.push(first[i - 1])
+                i--
+                j--
+                index--
+            }
+            matrix[i - 1][j] > matrix[i][j - 1] -> i--
+            else -> j--
+        }
+    }
+
+    for (k in 0 until lcs.size)
+        output += lcs.pollFirst()
+
+    return output
 }
 
 /**

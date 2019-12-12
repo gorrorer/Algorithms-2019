@@ -17,7 +17,32 @@ import java.io.File
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+
+    val long: List<Char>
+    val short: List<Char>
+    val letters = mutableMapOf<Pair<Int, Int>, Char>()
+    var inc = Pair(-1, -1)
+    var outputSeq = ""
+
+    if (first.length > second.length) {
+        long = first.toList()
+        short = second.toList()
+    } else {
+        long = second.toList()
+        short = first.toList()
+    }
+    for (i in 0 until long.size)
+        for (k in 0 until short.size) {
+            if (long[i] == short[k]) letters[Pair(i, k)] = long[i]
+        }
+
+    for (i in letters.keys) {
+        if (i.first > inc.first && i.second > inc.second) {
+            outputSeq += letters[i].toString()
+            inc = Pair(i.first, i.second)
+        }
+    }
+    return outputSeq
 }
 
 /**
@@ -57,7 +82,9 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
 fun shortestPathOnField(inputName: String): Int {
+
     val matrix = File(inputName).readLines().map { it -> it.split(" ").map { it.toInt() }.toMutableList() }
+
     for (i in 0 until matrix.size)
         for (k in 0 until matrix.first().size) {
             val prevPoints = when {

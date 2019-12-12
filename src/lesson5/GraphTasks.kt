@@ -2,6 +2,10 @@
 
 package lesson5
 
+import java.util.*
+import lesson5.Graph.*
+import lesson5.impl.*
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -28,8 +32,35 @@ package lesson5
  * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
  * связного графа ровно по одному разу
  */
-fun Graph.findEulerLoop(): List<Graph.Edge> {
-    TODO()
+fun Graph.findEulerLoop(): List<Edge> {
+    if (this.vertices.isEmpty() || this.edges.isEmpty()
+        || !this.vertices.none { getNeighbors(it).size % 2 != 0 }
+    )
+        return listOf()
+
+    val edges = this.edges
+    val vertStack = Stack<Vertex>()
+    val output = mutableListOf<Edge>()
+
+    vertStack.push(vertices.first())
+    while (!vertStack.isEmpty()) {
+        val currVertex = vertStack.peek()
+        for (vertex in vertices) {
+            val edge = getConnection(currVertex, vertex)
+            if (edges.contains(edge)) {
+                vertStack.push(vertex)
+                edges.remove(edge)
+                break
+            }
+        }
+        if (currVertex == vertStack.peek()) {
+            vertStack.pop()
+            if (vertStack.isNotEmpty())
+                output.add(getConnection(currVertex, vertStack.peek())!!)
+        }
+    }
+
+    return output
 }
 
 /**
@@ -61,8 +92,32 @@ fun Graph.findEulerLoop(): List<Graph.Edge> {
  * J ------------ K
  */
 fun Graph.minimumSpanningTree(): Graph {
-    TODO()
+    if (vertices.isEmpty()) {
+        return GraphBuilder().build()
+    }
+
+    val edgeList = mutableListOf<Edge>()
+    val vertexSet = mutableSetOf<Vertex>()
+
+    for (vertex in vertices) {
+        for ((curVertex, edge) in getConnections(vertex)) {
+            if (curVertex !in vertexSet) {
+                vertexSet += curVertex
+                edgeList += edge
+            }
+        }
+    }
+
+    return GraphBuilder().apply {
+        for (edge in edgeList) {
+            addVertex(edge.begin)
+            addConnection(edge.begin, edge.end)
+        }
+    }.build()
 }
+
+//Пришлось изменить addVertex c private на public, не уверен в законности этого действия
+
 
 /**
  * Максимальное независимое множество вершин в графе без циклов.
@@ -115,5 +170,22 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
  */
 fun Graph.longestSimplePath(): Path {
-    TODO()
+    if (vertices.isEmpty() || edges.isEmpty())
+        return Path()
+
+    val graph = this
+    var output = Path(vertices.first())
+    val pathDeque = ArrayDeque<Path>()
+
+    vertices.mapTo(pathDeque) { Path(it) }
+    while (!pathDeque.isEmpty()) {
+        val current = pathDeque.pop()
+        val end = current.vertices.last()
+        val neighVert = getNeighbors(end)
+        if (current.length > output.length)
+            output = current
+        neighVert.filter { !current.contains(it) }
+            .forEach { pathDeque.addLast(Path(current, graph, it)) }
+    }
+    return output
 }
